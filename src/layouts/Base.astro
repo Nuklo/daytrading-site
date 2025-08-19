@@ -1,20 +1,40 @@
 ---
-const { title = "Day Trading 101", description = "Lerne Day Trading – strukturiert." } = Astro.props;
+import "../styles/global.css";
+
+const {
+  title = "Day Trading 101",
+  description = "Lerne Day Trading – strukturiert und anfängerfreundlich.",
+} = Astro.props;
 ---
+
 <html lang="de">
   <head>
-    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title><meta name="description" content={description} />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
   </head>
-  <body class="max-w-3xl mx-auto px-4 py-8">
-    <header class="mb-8">
-      <a href="/"><h1>Day Trading 101</h1></a>
-      <nav style="display:flex;gap:.75rem;font-size:.9rem;">
-        <a href="/kurs/">Kurs</a><a href="/glossar/">Glossar</a>
-        <a href="/ressourcen/">Ressourcen</a><a href="/rechtliches/disclaimer/">Disclaimer</a>
-      </nav><hr/>
-    </header>
-    <main><slot/></main>
-    <footer><hr/><small>© {new Date().getFullYear()} – Keine Anlageberatung.</small></footer>
+  <body class="bg-neutral-100 text-neutral-900">
+    <div class="max-w-4xl mx-auto mt-8 mb-16 px-4">
+      <header class="mb-8">
+        <a href="/" class="text-3xl font-bold text-primary hover:text-primary-dark">Day Trading 101</a>
+        <nav class="mt-4 flex gap-6 text-sm text-neutral-700">
+          <a href="/kurs/" class="hover:text-primary">Kurs</a>
+          <a href="/glossar/" class="hover:text-primary">Glossar</a>
+          <a href="/ressourcen/" class="hover:text-primary">Ressourcen</a>
+          <a href="/rechtliches/disclaimer/" class="hover:text-primary">Disclaimer</a>
+        </nav>
+        <hr class="mt-4 border-neutral-200" />
+      </header>
+
+      <main class="prose prose-lg max-w-none">
+        <slot />
+      </main>
+
+      <footer class="mt-12 text-xs text-neutral-700">
+        <hr class="mb-3 border-neutral-200" />
+        © {new Date().getFullYear()} Day Trading 101 — Keine Anlageberatung.
+      </footer>
+    </div>
   </body>
 </html>
