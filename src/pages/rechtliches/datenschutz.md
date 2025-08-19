@@ -1,5 +1,8 @@
 ---
-layout: ../../../layouts/Base.astro
+---
+layout: /src/layouts/Base.astro
+---
+
 title: "Datenschutz"
 description: "Kurzfassung."
 ---
