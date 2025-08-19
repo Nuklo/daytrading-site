@@ -1,11 +1,12 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Base from "../layouts/Base.astro";
 ---
-
-<Layout>
-	<Welcome />
-</Layout>
+<Base title="Day Trading 101 – Einstieg">
+  <h2>Willkommen</h2>
+  <p>Kurz, klar, kostenlos. Starte mit dem Kurs.</p>
+  <ul>
+    <li><a href="/kurs/">Zum Kurs</a></li>
+    <li><a href="/glossar/">Glossar</a></li>
+    <li><a href="/ressourcen/">Ressourcen</a></li>
+  </ul>
+</Base>

@@ -1,0 +1,20 @@
+---
+const { title = "Day Trading 101", description = "Lerne Day Trading – strukturiert." } = Astro.props;
+---
+<html lang="de">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title><meta name="description" content={description} />
+  </head>
+  <body class="max-w-3xl mx-auto px-4 py-8">
+    <header class="mb-8">
+      <a href="/"><h1>Day Trading 101</h1></a>
+      <nav style="display:flex;gap:.75rem;font-size:.9rem;">
+        <a href="/kurs/">Kurs</a><a href="/glossar/">Glossar</a>
+        <a href="/ressourcen/">Ressourcen</a><a href="/rechtliches/disclaimer/">Disclaimer</a>
+      </nav><hr/>
+    </header>
+    <main><slot/></main>
+    <footer><hr/><small>© {new Date().getFullYear()} – Keine Anlageberatung.</small></footer>
+  </body>
+</html>
