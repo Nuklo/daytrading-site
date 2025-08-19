@@ -1,0 +1,180 @@
+---
+import Base from "../../layouts/Base.astro";
+import { COURSES } from "../../data/courses";
+
+const course = COURSES.find(c => c.id === "grundlagen-daytrading");
+if (!course) throw new Error("Course not found: grundlagen-daytrading");
+---
+
+<Base title={course.title} description={course.description}>
+  <article class="card">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold">{course.title}</h1>
+        <p class="opacity-80">{course.description}</p>
+      </div>
+      <a href="/kurs/" class="btn">← Übersicht</a>
+    </div>
+
+    <!-- Fortschrittsbalken -->
+    <div class="mt-4">
+      <div class="h-2 w-full rounded bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
+        <div id="bar" class="h-2 bg-primary transition-all" style="width:0%"></div>
+      </div>
+      <div class="mt-2 text-xs opacity-80" id="meta"></div>
+    </div>
+
+    <!-- Folien -->
+    <div id="slide" class="prose dark:prose-invert mt-6"></div>
+
+    <!-- Navigation -->
+    <div class="mt-6 flex flex-wrap items-center gap-2">
+      <button id="prev" class="btn" disabled>Zurück</button>
+      <button id="next" class="btn btn-primary">Weiter</button>
+      <button id="restart" class="btn ml-auto hidden">Neu starten</button>
+    </div>
+  </article>
+
+  <!-- Test -->
+  <article id="quiz" class="card mt-6 hidden">
+    <h2 class="text-xl font-semibold">Abschlusstest</h2>
+    <p class="opacity-80">Beantworte alle Fragen. Bei richtiger Antwort geht es weiter.</p>
+
+    <div class="mt-4">
+      <div id="qtext" class="font-medium"></div>
+      <div id="opts" class="mt-3 grid gap-2"></div>
+      <div id="hint" class="mt-2 text-sm"></div>
+    </div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="q-next" class="btn btn-primary hidden">Nächste</button>
+      <button id="q-finish" class="btn hidden">Kurs abschließen</button>
+    </div>
+  </article>
+
+  <script is:inline define:vars={{ course }}>
+    const KEY = (id) => `course:${id}`;
+    const state = (() => {
+      try{ return JSON.parse(localStorage.getItem(KEY(course.id)) || "{}"); }catch{ return {}; }
+    })();
+
+    let slideIndex = Math.max(0, Math.min(state.slideIndex ?? 0, course.slides.length));
+    let passed = !!state.passed;
+
+    const slideEl = document.getElementById('slide');
+    const bar = document.getElementById('bar');
+    const meta = document.getElementById('meta');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+    const restart = document.getElementById('restart');
+
+    const quizCard = document.getElementById('quiz');
+    const qtext = document.getElementById('qtext');
+    const opts = document.getElementById('opts');
+    const hint = document.getElementById('hint');
+    const qnext = document.getElementById('q-next');
+    const qfinish = document.getElementById('q-finish');
+
+    function save(){
+      localStorage.setItem(KEY(course.id), JSON.stringify({ slideIndex, passed }));
+    }
+
+    function renderSlide(){
+      const total = course.slides.length;
+      const atEnd = slideIndex >= total;
+
+      // Fortschritt
+      const pct = Math.round(Math.min(slideIndex, total) / total * 100);
+      bar.style.width = pct + "%";
+      meta.textContent = atEnd
+        ? `Fertig mit den Folien – starte den Abschlusstest`
+        : `Folie ${slideIndex+1} / ${total}`;
+
+      // Buttons
+      prev.disabled = slideIndex === 0;
+      next.classList.toggle('hidden', atEnd);
+      restart.classList.toggle('hidden', !atEnd);
+
+      // Inhalt
+      if (!atEnd){
+        slideEl.innerHTML = course.slides[slideIndex].html;
+        quizCard.classList.add('hidden');
+      } else {
+        // Test starten
+        slideEl.innerHTML = `<h2 class="text-2xl font-bold">Test bereit</h2><p class="mt-2">Klicke unten auf „Neu starten“, um erneut zu lesen – oder beginne direkt mit dem Test.</p>`;
+        quizInit();
+        quizCard.classList.remove('hidden');
+      }
+
+      save();
+    }
+
+    prev.addEventListener('click', () => { slideIndex = Math.max(0, slideIndex - 1); renderSlide(); });
+    next.addEventListener('click', () => { slideIndex = Math.min(course.slides.length, slideIndex + 1); renderSlide(); });
+    restart.addEventListener('click', () => { slideIndex = 0; passed = false; renderSlide(); });
+
+    // --- Quiz ---
+    let qi = 0;
+    let correctCount = 0;
+
+    function quizInit(){
+      qi = 0;
+      correctCount = 0;
+      renderQ();
+    }
+
+    function renderQ(){
+      const total = course.quiz.length;
+      if (qi >= total){
+        qtext.textContent = `Geschafft: ${correctCount} / ${total} richtig.`;
+        opts.innerHTML = '';
+        hint.textContent = '';
+        qnext.classList.add('hidden');
+        qfinish.classList.remove('hidden');
+        return;
+      }
+      const q = course.quiz[qi];
+      qtext.textContent = `Frage ${qi+1}/${total}: ${q.q}`;
+      opts.innerHTML = '';
+      hint.textContent = '';
+      q.a.forEach((txt, i) => {
+        const b = document.createElement('button');
+        b.className = "btn w-full text-left";
+        b.textContent = txt;
+        b.onclick = () => onAnswer(i === q.correct, b);
+        opts.appendChild(b);
+      });
+      qnext.classList.add('hidden');
+      qfinish.classList.add('hidden');
+    }
+
+    function onAnswer(isCorrect, btn){
+      [...opts.children].forEach(b => b.disabled = true);
+      if (isCorrect){
+        btn.classList.add('!bg-green-600','!text-white');
+        hint.textContent = "Richtig ✅";
+        correctCount++;
+        qnext.classList.remove('hidden');
+      } else {
+        btn.classList.add('!bg-red-600','!text-white');
+        hint.textContent = "Falsch – versuch es erneut.";
+        // Wieder erlauben, eine andere zu wählen:
+        [...opts.children].forEach(b => { if (b !== btn) b.disabled = false; });
+      }
+    }
+
+    qnext.addEventListener('click', () => { qi++; renderQ(); });
+    qfinish.addEventListener('click', () => {
+      // bestanden, wenn alle richtig ODER mind. 80% – passe nach Wunsch an
+      const passedNow = (correctCount === course.quiz.length) || (correctCount / course.quiz.length >= 0.8);
+      passed = passedNow;
+      save();
+      // Badge in Übersicht wird bei nächstem Besuch/Refresh angezeigt
+      qfinish.textContent = passed ? "Bestanden ✔" : "Nicht bestanden";
+      qfinish.disabled = true;
+    });
+
+    // Start
+    renderSlide();
+  </script>
+</Base>

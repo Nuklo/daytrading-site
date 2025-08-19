@@ -1,0 +1,154 @@
+
+
+---
+import Base from "../../layouts/Base.astro";
+import { TERMS } from "../../data/terms.js";
+
+
+// Nur saubere Einträge (brauchen term + def)
+const POOL = TERMS
+  .filter(t => t?.term && t?.def)
+  .map(t => ({ term: t.term, def: t.def }));
+const QUIZ_LEN = Math.min(10, POOL.length);
+---
+
+<Base title="Lexikon-Quiz" description="10 zufällige Begriffe – nur bei richtiger Antwort geht es weiter.">
+  <section class="max-w-3xl">
+    <h1 class="text-2xl sm:text-3xl font-bold">Lexikon-Quiz</h1>
+    <p class="opacity-80 mt-1">10 zufällige Fragen aus deinem Lexikon. Wähle die richtige Erklärung, dann geht’s weiter.</p>
+
+    <!-- Progress -->
+    <div class="mt-4">
+      <div class="h-2 w-full rounded bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
+        <div id="bar" class="h-2 bg-primary transition-all" style="width:0%"></div>
+      </div>
+      <div class="mt-2 text-sm opacity-80">
+        <span id="progress">Frage 0 / {QUIZ_LEN}</span> •
+        <span id="score">Punkte: 0</span>
+      </div>
+    </div>
+
+    <!-- Karte -->
+    <article class="card mt-6">
+      <div class="text-sm opacity-70">Begriff</div>
+      <h2 id="q-term" class="text-xl sm:text-2xl font-semibold">—</h2>
+
+      <div id="answers" class="mt-4 grid gap-2">
+        <!-- Buttons werden per JS gefüllt -->
+      </div>
+
+      <div id="hint" class="mt-3 text-sm"></div>
+
+      <div class="mt-4 flex gap-2">
+        <button id="next" class="btn btn-primary hidden">Weiter</button>
+        <button id="restart" class="btn hidden">Neu starten</button>
+      </div>
+    </article>
+  </section>
+
+  <script is:inline define:vars={{ POOL, QUIZ_LEN }}>
+    // Helfer
+    const shuffle = (arr) => arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+    const pickOtherDefs = (pool, correct, n=3) => {
+      const others = pool.filter(x => x.def !== correct.def);
+      return shuffle(others).slice(0,n).map(x => x.def);
+    };
+
+    // Quiz-State
+    let questions = [];
+    let idx = 0;
+    let score = 0;
+
+    const qTerm   = document.getElementById('q-term');
+    const answers = document.getElementById('answers');
+    const hint    = document.getElementById('hint');
+    const bar     = document.getElementById('bar');
+    const progress= document.getElementById('progress');
+    const scoreEl = document.getElementById('score');
+    const nextBtn = document.getElementById('next');
+    const restart = document.getElementById('restart');
+
+    function buildQuestions(){
+      // 10 zufällige Begriffe
+      const picked = shuffle(POOL).slice(0, QUIZ_LEN);
+      // Jede Frage: {term, def, options[]}
+      questions = picked.map(item => {
+        const distractors = pickOtherDefs(POOL, item, 3);
+        const options = shuffle([item.def, ...distractors]);
+        return { term: item.term, def: item.def, options };
+      });
+      idx = 0; score = 0;
+    }
+
+    function render(){
+      const total = questions.length;
+      progress.textContent = `Frage ${Math.min(idx+1, total)} / ${total}`;
+      scoreEl.textContent = `Punkte: ${score}`;
+      bar.style.width = `${(idx/total)*100}%`;
+
+      answers.innerHTML = '';
+      hint.textContent = '';
+
+      if (idx >= total){
+        // fertig
+        qTerm.textContent = "Geschafft!";
+        const msg = document.createElement('div');
+        msg.className = "mt-2 text-sm opacity-80";
+        msg.textContent = `Dein Score: ${score} von ${total}.`;
+        answers.appendChild(msg);
+        nextBtn.classList.add('hidden');
+        restart.classList.remove('hidden');
+        bar.style.width = "100%";
+        progress.textContent = `Frage ${total} / ${total}`;
+        return;
+      }
+
+      const q = questions[idx];
+      qTerm.textContent = q.term;
+
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = "btn w-full text-left";
+        btn.textContent = opt;
+        btn.onclick = () => onAnswer(btn, opt === q.def);
+        answers.appendChild(btn);
+      });
+
+      nextBtn.classList.add('hidden');
+      restart.classList.add('hidden');
+    }
+
+    function onAnswer(button, correct){
+      // Buttons sperren
+      [...answers.children].forEach(b => b.disabled = true);
+
+      if (correct){
+        button.classList.add('!bg-green-600','!text-white');
+        hint.textContent = "Richtig ✅";
+        score++;
+        // zur nächsten Frage freigeben
+        nextBtn.classList.remove('hidden');
+      } else {
+        button.classList.add('!bg-red-600','!text-white');
+        hint.textContent = "Falsch – versuch eine andere Antwort.";
+        // Falsche bleibt rot, andere wieder aktivieren:
+        [...answers.children].forEach(b => { if (b !== button) b.disabled = false; });
+      }
+      scoreEl.textContent = `Punkte: ${score}`;
+    }
+
+    nextBtn.addEventListener('click', () => {
+      idx++;
+      render();
+    });
+
+    restart.addEventListener('click', () => {
+      buildQuestions();
+      render();
+    });
+
+    // Init
+    buildQuestions();
+    render();
+  </script>
+</Base>
