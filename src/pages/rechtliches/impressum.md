@@ -1,5 +1,7 @@
 ---
-layout: ../../../layouts/Base.astro
+layout: /src/layouts/Base.astro
+---
+
 title: "Impressum"
 description: "Anbieterkennzeichnung."
 ---

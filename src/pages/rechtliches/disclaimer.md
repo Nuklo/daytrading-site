@@ -1,5 +1,7 @@
 ---
-layout: ../../../layouts/Base.astro
+layout: /src/layouts/Base.astro
+---
+
 title: "Disclaimer (Keine Anlageberatung)"
 description: "Wichtiger Hinweis."
 ---
