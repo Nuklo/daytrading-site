@@ -1,12 +1,63 @@
 ---
 import Base from "../layouts/Base.astro";
 ---
-<Base title="Day Trading 101 – Einstieg">
-  <h2>Willkommen</h2>
-  <p>Kurz, klar, kostenlos. Starte mit dem Kurs.</p>
-  <ul>
-    <li><a href="/kurs/">Zum Kurs</a></li>
-    <li><a href="/glossar/">Glossar</a></li>
-    <li><a href="/ressourcen/">Ressourcen</a></li>
-  </ul>
+
+<Base title="Day Trading 101 – Lerne Day Trading">
+  <!-- HERO -->
+  <section class="text-center py-12">
+    <h1 class="text-4xl md:text-5xl font-bold text-primary">Lerne Day Trading – klar & strukturiert</h1>
+    <p class="mt-4 text-lg text-neutral-700">
+      Kostenlose Grundlagen, sauberes Risikomanagement, praxisnahes Paper-Trading. Kein Bullshit.
+    </p>
+    <div class="mt-6 flex justify-center gap-4">
+      <a class="btn-primary" href="/kurs/">Jetzt starten</a>
+      <a class="btn-accent" href="/ressourcen/">Kostenlose Tools</a>
+    </div>
+  </section>
+
+  <!-- USP STRIP -->
+  <section class="grid gap-4 md:grid-cols-3">
+    <div class="card">
+      <h3 class="font-semibold">Neutral & sachlich</h3>
+      <p class="text-sm text-neutral-700">Kein Getöse. Fakten, Konzepte, Beispiele.</p>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold">Risiko zuerst</h3>
+      <p class="text-sm text-neutral-700">Positionsgröße, Stop-Loss, CRV – bevor Geld fließt.</p>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold">Übungen & Journal</h3>
+      <p class="text-sm text-neutral-700">Paper-Trading, Tasks und Checklisten zum Mitmachen.</p>
+    </div>
+  </section>
+
+  <!-- 3 FEATURE CARDS -->
+  <section class="mt-10 grid gap-6 md:grid-cols-3">
+    <article class="card">
+      <h2 class="text-lg font-semibold">Kurs</h2>
+      <p class="text-sm text-neutral-700">Grundlagen, Risiko, Psychologie, Strategien, Backtesting, Paper-Trading.</p>
+      <a href="/kurs/" class="btn-primary mt-4 inline-block">Zum Kurs</a>
+    </article>
+
+    <article class="card">
+      <h2 class="text-lg font-semibold">Glossar</h2>
+      <p class="text-sm text-neutral-700">Alle wichtigen Begriffe – kurz, klar, mit Beispielen.</p>
+      <a href="/glossar/" class="btn-primary mt-4 inline-block">Begriffe ansehen</a>
+    </article>
+
+    <article class="card">
+      <h2 class="text-lg font-semibold">Ressourcen</h2>
+      <p class="text-sm text-neutral-700">Kostenlose Tools, Links, Vorlagen fürs Trading-Journal.</p>
+      <a href="/ressourcen/" class="btn-primary mt-4 inline-block">Tools öffnen</a>
+    </article>
+  </section>
+
+  <!-- CALL TO ACTION BOTTOM -->
+  <section class="mt-12 text-center">
+    <p class="text-neutral-700">Starte mit den Grundlagen und arbeite dich Schritt für Schritt vor.</p>
+    <div class="mt-4 flex justify-center gap-4">
+      <a class="btn-primary" href="/kurs/grundlagen/">Mit Grundlagen starten</a>
+      <a class="btn-accent" href="/kurs/risiko/">Risikomanagement lernen</a>
+    </div>
+  </section>
 </Base>

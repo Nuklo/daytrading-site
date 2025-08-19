@@ -1,19 +1,136 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-primary: #2563eb;
+  --color-primary-light: #3b82f6;
+  --color-primary-dark: #1e40af;
+  --color-accent: #10b981;
+  --color-accent-dark: #059669;
+  --color-neutral-50: #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-700: #334155;
+  --color-neutral-900: #0f172a;
+}
 
 /* Buttons */
-.btn {
+@utility btn {
   @apply inline-flex items-center gap-2 rounded-xl px-4 py-2 font-medium shadow-sm transition;
 }
-.btn-primary {
+@utility btn-primary {
   @apply btn bg-primary text-white hover:bg-primary-dark;
 }
-.btn-accent {
+@utility btn-accent {
   @apply btn bg-accent text-white hover:bg-accent-dark;
 }
 
+@utility card {
+  @apply bg-white text-neutral-900 shadow-md rounded-2xl p-6 transition-colors
+         dark:!bg-neutral-800 dark:!text-neutral-100;
+}
+
+/* optional – wenn du Buttons im Dark anders willst */
+@utility btn-primary { @apply btn bg-primary text-white hover:bg-primary-dark; }   /* ok */
+@utility btn-accent  { @apply btn bg-accent  text-white hover:bg-accent-dark; }   /* ok */
+
+
+/* ---- Theme: Light vs Dark erzwingen ---- */
+
+/* Light (Default) */
+body{
+  background-color: var(--color-neutral-100);
+  color: var(--color-neutral-900);
+}
+
+/* Dark (wenn <html class="dark"> gesetzt ist) */
+html.dark body{
+  background-color: var(--color-neutral-900) !important;
+  color: var(--color-neutral-100) !important;
+}
+
+/* Prose invertieren */
+html.dark main.prose{
+  color: var(--color-neutral-100) !important;
+}
+
+/* Cards sicher umschalten */
+html.dark .card{
+  background-color: var(--color-neutral-800) !important;
+  color: var(--color-neutral-100) !important;
+}
+
+/* Divider/HR */
+html.dark hr{ border-color: var(--color-neutral-700) !important; }
+
+
+/* ===== THEME (Light / Dark) ===== */
+:root{
+  --bg: #ffffff;          /* Seitenhintergrund (hell)   */
+  --fg: #0b1220;          /* Standardtext (dunkel)       */
+  --surface: #ffffff;     /* Karten/Boxen (hell)         */
+  --border: #e2e8f0;      /* Rahmen/Divider (hell)       */
+}
+html.dark{
+  --bg: #0b1220;          /* Seitenhintergrund (dunkel)  */
+  --fg: #e6eefc;          /* Standardtext (hell)         */
+  --surface: #131a2a;     /* Karten/Boxen (dunkel)       */
+  --border: #334155;      /* Rahmen/Divider (dunkel)     */
+}
+
+/* ===== Global anwenden – gewinnt dank !important ===== */
+html, body{
+  background: var(--bg) !important;
+  color: var(--fg) !important;
+}
+hr{ border-color: var(--border) !important; }
+
+/* Prose-Markdown */
+main.prose{
+  color: var(--fg) !important;
+}
+main.prose a{
+  color: var(--fg) !important;
+  text-decoration: underline;
+}
+
 /* Karten */
-.card {
-  @apply bg-white shadow-card rounded-2xl p-6;
+.card{
+  background: var(--surface) !important;
+  color: var(--fg) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* Nav & Footer dezent */
+header nav, footer{ opacity:.85; }
+header nav a:hover{ opacity:1; }
+
+
+/* Haupttext */
+.prose { color: var(--fg) !important; }
+
+/* Überschriften */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: var(--heading) !important;
+}
+
+/* Unterpunkte / Listen / Nebeninfos */
+.prose p,
+.prose li,
+.prose small {
+  color: var(--fg-muted) !important;
+}
+
+/* Strong */
+.prose strong { color: var(--fg) !important; }
+
+/* Links */
+.prose a {
+  color: var(--link) !important;
+  text-decoration: underline;
 }

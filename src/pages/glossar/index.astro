@@ -1,0 +1,223 @@
+---
+import Base from "../../layouts/Base.astro";
+
+// ⚠️ Bilder unter: public/images/glossar/… (PNG/JPG/SVG)
+// TERMS: Grundlagen + ICT/SMC, kurz + optional img nur für Detailansicht.
+const TERMS = [
+  // Grundlagen
+  { term: "Ask/Bid", def: "Angebots- und Nachfragepreis (Kauf/Verkauf).", alias: ["angebot","nachfrage","offer"] },
+  { term: "Spread", def: "Differenz zwischen Bid und Ask → direkte Kosten.", alias: [] },
+  { term: "Pip", def: "Kleinste Preisänderung (z. B. 0.0001 bei EUR/USD).", alias: [] },
+  { term: "Lot", def: "Standardisierte Handelsgröße (1 Lot = 100.000 Einheiten).", alias: ["lotgröße","microlot"] },
+  { term: "Hebel (Leverage)", def: "Verstärkt Gewinne/Verluste durch größere Positionsgröße.", alias: ["leverage"] },
+  { term: "Margin", def: "Sicherheitsleistung beim Broker für gehebelte Positionen.", alias: [] },
+  { term: "Stop-Loss (SL)", def: "Preis, der den Verlust automatisch begrenzt.", alias: ["sl"] },
+  { term: "Take-Profit (TP)", def: "Preis, der den Gewinn automatisch realisiert.", alias: ["tp"] },
+  { term: "CRV (RRR)", def: "Chance-Risiko-Verhältnis, z. B. 3:1.", alias: ["risk reward","rrr"] },
+  { term: "Positionsgröße", def: "Größe der Position passend zu Risiko & SL-Abstand.", alias: ["position sizing"] },
+  { term: "Risikoprozent", def: "Fixer Kontoprozentsatz pro Trade (z. B. 0,5–1%).", alias: ["risk per trade"] },
+  { term: "Slippage", def: "Abweichung zwischen erwartetem und tatsächlichem Ausführungspreis.", alias: [] },
+  { term: "Volatilität", def: "Stärke der Kursschwankungen in einer Zeitspanne.", alias: ["vola"] },
+  { term: "Drawdown", def: "Rückgang vom jüngsten Kontohöchststand.", alias: ["dd"] },
+  { term: "Uptrend", def: "Folge von höheren Hochs und höheren Tiefs → Aufwärtsbewegung.", alias: ["bullish","aufwärtstrend"] },
+  { term: "Downtrend", def: "Folge von tieferen Hochs und tieferen Tiefs → Abwärtsbewegung.", alias: ["bearish","abwärtstrend"] },
+  { term: "Range", def: "Seitwärtsmarkt zwischen Support und Resistance ohne klaren Trend.", alias: ["seitwärts","sideways","consolidation"] },
+
+
+  // Strategien (klassisch)
+  { term: "Trendfolge", def: "In Richtung des vorherrschenden Trends handeln.", alias: ["trend trading"] },
+  { term: "Pullback", def: "Korrektur gegen den Trend vor der Fortsetzung.", alias: ["retest"] },
+  { term: "Breakout", def: "Ausbruch aus Range/Struktur mit Momentum.", alias: ["ausbruch"] },
+  { term: "Range / Mean Reversion", def: "Gegentrend-Ansatz in Seitwärtsphasen.", alias: ["mean reversion","range trading"] },
+
+  // Price Action / Tools
+  { term: "Support/Resistance", def: "Bereiche, an denen Preis oft dreht/stockt.", alias: ["unterstützung","widerstand","sr-levels"] },
+  { term: "SMA/EMA", def: "Gleitende Durchschnitte (einfach/exponentiell) für Filter/Trend.", alias: ["moving average","ma","ema","sma"] },
+  { term: "VWAP", def: "Volumen-gewichteter Durchschnittspreis (intraday-Referenz).", alias: ["volume weighted average price"] },
+  { term: "ATR", def: "Durchschnittliche Handelsspanne (für Stops/Position).", alias: ["average true range"] },
+
+  // ICT / SMC
+  { term: "Liquidity", def: "Zonen mit vielen Orders, oft über Hochs/unter Tiefs.", alias: ["liquidität"] },
+  { term: "Liquidity Sweep", def: "Gezieltes Abholen von Stopps über/unter markanten Levels.", alias: ["stop hunt","liq sweep"], img: "/images/glossar/liquidity-sweep.png" },
+  { term: "BOS (Break of Structure)", def: "Bruch eines markanten Strukturpunkts im Trend.", alias: ["break structure","bos"], img: "/images/glossar/bos-example.png" },
+  { term: "CHOCH (Change of Character)", def: "Erster Strukturwechsel → möglicher Trendwechsel.", alias: ["change of character","choch"], img: "/images/glossar/choch.png" },
+  { term: "Orderblock (OB)", def: "Letzte Kerze vor starkem Move → institutionelle Zone.", alias: ["ob","order block"], img: "/images/glossar/orderblock.png" },
+  { term: "Fair Value Gap (FVG)", def: "Ungleichgewicht (3-Kerzen-Lücke) → mögliche Rückläufe.", alias: ["fvg","imbalance"], img: "/images/glossar/fvg.png" },
+  { term: "Imbalance", def: "Kauf-/Verkaufsungleichgewicht → schnelle Preisbewegung.", alias: [] },
+  { term: "Mitigation", def: "Rücklauf in alten OB, um verbleibende Orders zu füllen.", alias: [] },
+  { term: "Inducement", def: "Falle/Anreiz, Trader in falsche Richtung zu locken.", alias: [] },
+
+  // Praxis/Prozess
+  { term: "Backtesting", def: "Regeln mit historischen Daten methodisch testen.", alias: [] },
+  { term: "Forward-/Paper-Trading", def: "Regeln live/auf Demokonto prüfen, ohne Geldrisiko.", alias: ["demo","paper","forward"] },
+  { term: "Expectancy", def: "Erwartungswert je Trade aus Winrate und CRV.", alias: ["erwartungswert"] },
+  { term: "Edge", def: "Messbarer Vorteil einer Strategie über Zufall.", alias: ["vorteil"] },
+].map(x => ({ ...x, id: x.term.toLowerCase().replace(/[^a-z0-9]+/gi, "-") }));
+
+// A–Z Buttons
+const LETTERS = Array.from(new Set(TERMS.map(t => t.term[0].toUpperCase()))).sort();
+---
+
+<Base title="Begriffe – kurz & anschaulich" description="Trading-Begriffe mit kurzen Erklärungen und Beispielgrafiken im Detail.">
+  <!-- Kopf -->
+  <section class="mb-6">
+    <h1 class="text-3xl font-bold">Begriffe</h1>
+    <p class="opacity-80 mt-1">Klicke auf einen Begriff. Im Detail siehst du Erklärung und (wenn vorhanden) eine Beispielgrafik.</p>
+
+    <!-- Suche -->
+    <div class="mt-4 flex items-center gap-3">
+      <input id="gq" type="search" placeholder="Begriff suchen …"
+        class="w-full max-w-md rounded-xl border px-4 py-2 outline-none focus:ring focus:ring-primary/30"
+        aria-label="Begriffe durchsuchen" />
+      <span id="count" class="text-sm opacity-70 whitespace-nowrap"></span>
+    </div>
+
+    <!-- A–Z -->
+    <div class="mt-3 flex flex-wrap gap-2">
+      <button data-letter="*" class="px-3 py-1 rounded border text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800">Alle</button>
+      {LETTERS.map(L => (
+        <button data-letter={L} class="px-3 py-1 rounded border text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800">{L}</button>
+      ))}
+    </div>
+  </section>
+
+  <!-- Kartenraster (nur Begriff groß) -->
+  <section id="grid" class="grid gap-4 md:grid-cols-2">
+    {TERMS.map(t => (
+      <button type="button" class="card flex items-center justify-between"
+        data-id={t.id}
+        data-term={t.term.toLowerCase()}
+        data-alias={(t.alias||[]).join(" ").toLowerCase()}
+        data-letter={t.term[0].toUpperCase()}
+        id={t.id}
+        aria-label={`Definition zu ${t.term} öffnen`}>
+        <span class="text-xl md:text-2xl font-semibold">{t.term}</span>
+        <span class="opacity-60 text-sm">Öffnen →</span>
+      </button>
+    ))}
+  </section>
+
+  <!-- Detailmodus -->
+  <section id="detail" class="hidden">
+    <article class="card">
+      <div class="flex items-start justify-between gap-4">
+        <h2 id="d-title" class="text-2xl font-bold"></h2>
+        <button id="d-back" type="button" class="btn" aria-label="Zurück zur Liste">← Zurück</button>
+      </div>
+      <div id="d-body" class="prose dark:prose-invert mt-3"></div>
+    </article>
+  </section>
+
+  <!-- Logik -->
+  <script is:inline define:vars={{ TERMS }}>
+    const DATA = TERMS;
+
+    const q = document.getElementById('gq');
+    const count = document.getElementById('count');
+    const grid = document.getElementById('grid');
+    const detail = document.getElementById('detail');
+    const dTitle = document.getElementById('d-title');
+    const dBody = document.getElementById('d-body');
+    const dBack = document.getElementById('d-back');
+    const letterBtns = Array.from(document.querySelectorAll('[data-letter]'));
+    const cards = Array.from(grid.querySelectorAll('[data-id]'));
+
+    let activeLetter = '*';
+
+    history.scrollRestoration = 'manual';
+    const saveScroll = () => sessionStorage.setItem('gloss:y', String(window.scrollY));
+    const restoreScroll = () => requestAnimationFrame(() => {
+      const y = parseFloat(sessionStorage.getItem('gloss:y') || '0');
+      window.scrollTo(0, y);
+    });
+
+    const norm = s => (s || '').toLowerCase().trim();
+
+    function applyList(){
+      const needle = norm(q.value);
+      let visible = 0;
+      cards.forEach(el => {
+        const show =
+          (activeLetter === '*' || el.dataset.letter === activeLetter) &&
+          (!needle || el.dataset.term.includes(needle) || el.dataset.alias.includes(needle));
+        el.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      count.textContent = `${visible} / ${cards.length}`;
+    }
+
+    function resetFilters(){
+      activeLetter = '*';
+      letterBtns.forEach(b => b.classList.remove('!bg-primary','!text-white'));
+      q.value = '';
+      applyList();
+    }
+
+    function openDetail(id, push = true){
+      const item = DATA.find(x => x.id === id);
+      if (!item) return;
+
+      dTitle.textContent = item.term;
+
+      // Body-Inhalt bauen: Text + optional Bild
+      dBody.innerHTML = '';
+      const p = document.createElement('p');
+      p.textContent = item.def;
+      dBody.appendChild(p);
+
+      if (item.img) {
+        const img = document.createElement('img');
+        img.src = item.img;
+        img.alt = `Beispiel für ${item.term}`;
+        img.className = "mt-4 rounded-xl border border-neutral-300 dark:border-neutral-700 shadow-md";
+        dBody.appendChild(img);
+      }
+
+      grid.classList.add('hidden');
+      detail.classList.remove('hidden');
+
+      if (push) {
+        saveScroll();
+        history.pushState({ t: id }, '', `?t=${id}#${id}`);
+      }
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+
+    function closeDetail(pop = false){
+      detail.classList.add('hidden');
+      grid.classList.remove('hidden');
+      // nach Wunsch: immer ALLE wieder einblenden
+      resetFilters();
+
+      if (!pop) {
+        history.pushState({}, '', location.pathname + location.hash);
+        restoreScroll();
+      }
+    }
+
+    // Events
+    q.addEventListener('input', applyList);
+    letterBtns.forEach(b => b.addEventListener('click', () => {
+      activeLetter = b.dataset.letter;
+      letterBtns.forEach(x => x.classList.remove('!bg-primary','!text-white'));
+      b.classList.add('!bg-primary','!text-white');
+      applyList();
+    }));
+    cards.forEach(c => c.addEventListener('click', () => openDetail(c.dataset.id)));
+    dBack.addEventListener('click', () => closeDetail(false));
+
+    // Browser-Back/Forward
+    window.addEventListener('popstate', () => {
+      const id = new URL(location.href).searchParams.get('t');
+      if (id) openDetail(id, false);
+      else { closeDetail(true); restoreScroll(); }
+    });
+
+    // Start
+    (function init(){
+      applyList();
+      const id = new URL(location.href).searchParams.get('t');
+      if (id) openDetail(id, false);
+    })();
+  </script>
+</Base>

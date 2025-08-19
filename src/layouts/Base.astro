@@ -1,38 +1,66 @@
 ---
 import "../styles/global.css";
+import Meta from "../components/Meta.astro";
+import DarkToggle from "../components/DarkToggle.astro";
 
 const {
   title = "Day Trading 101",
   description = "Lerne Day Trading – strukturiert und anfängerfreundlich.",
+  url, // optional für Meta
 } = Astro.props;
 ---
 
 <html lang="de">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
-  </head>
-  <body class="bg-neutral-100 text-neutral-900">
+  <!-- Charset muss ganz oben stehen -->
+  <meta charset="utf-8" />
+
+  <!-- deterministischer Init: liest localStorage, sonst System -->
+  <script is:inline>
+    (() => {
+      const root = document.documentElement;
+      try {
+        const saved = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const useDark = saved ? saved === "dark" : prefersDark;
+        root.classList.toggle("dark", useDark);
+      } catch {
+        root.classList.remove("dark");
+      }
+    })();
+  </script>
+
+  <!-- SEO / Meta -->
+  <Meta {title} {description} {url} />
+</head>
+
+
+
+  <body class="transition-colors">
+
+
     <div class="max-w-4xl mx-auto mt-8 mb-16 px-4">
       <header class="mb-8">
-        <a href="/" class="text-3xl font-bold text-primary hover:text-primary-dark">Day Trading 101</a>
-        <nav class="mt-4 flex gap-6 text-sm text-neutral-700">
+        <div class="flex items-center justify-between">
+          <a href="/" class="text-3xl font-bold text-primary hover:text-primary-dark">Day Trading 101</a>
+          <DarkToggle />
+        </div>
+
+        <nav class="mt-4 flex gap-6 text-sm text-neutral-700 dark:text-neutral-300">
           <a href="/kurs/" class="hover:text-primary">Kurs</a>
-          <a href="/glossar/" class="hover:text-primary">Glossar</a>
+          <a href="/glossar/" class="hover:text-primary">Lexikon</a>
           <a href="/ressourcen/" class="hover:text-primary">Ressourcen</a>
           <a href="/rechtliches/disclaimer/" class="hover:text-primary">Disclaimer</a>
         </nav>
-        <hr class="mt-4 border-neutral-200" />
+        <hr class="mt-4 border-neutral-200 dark:border-neutral-700" />
       </header>
 
-      <main class="prose prose-lg max-w-none">
+      <main class="prose prose-lg max-w-none dark:prose-invert">
         <slot />
       </main>
 
-      <footer class="mt-12 text-xs text-neutral-700">
-        <hr class="mb-3 border-neutral-200" />
+      <footer class="mt-12 text-xs text-neutral-700 dark:text-neutral-300">
+        <hr class="mb-3 border-neutral-200 dark:border-neutral-700" />
         © {new Date().getFullYear()} Day Trading 101 — Keine Anlageberatung.
       </footer>
     </div>
